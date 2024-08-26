@@ -98,34 +98,35 @@ task.spawn(function()
 end)
 
 local function MakeDraggable(DragPoint, Main)
-    pcall(function()
-        local Dragging = false
-        local DragInput = nil
-        local InitialMousePos = Vector2.new()
-        local InitialPosition = UDim2()
+	pcall(function()
+		local Dragging, DragInput, MousePos, FramePos = false
+		AddConnection(DragPoint.InputBegan, function(Input)
+			if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+				Dragging = true
+				MousePos = Input.Position
+				FramePos = Main.Position
 
-        AddConnection(DragPoint.InputBegan, function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Dragging = true
-                InitialMousePos = Vector2.new(Input.Position)
-                InitialPosition = Main.Position
-            end
-        end)
-
-        AddConnection(DragPoint.InputEnded, function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
-                Dragging = false
-            end
-        end)
-
-        AddConnection(UserInputService.InputChanged, function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseMovement and Dragging then
-                local Delta = Vector2.new(Input.Position) - InitialMousePos
-                Main.Position = UDim2.new(InitialPosition.X.Scale, InitialPosition.X.Offset + Delta.X, InitialPosition.Y.Scale, InitialPosition.Y.Offset + Delta.Y)
-            end
-        end)
-    end)
-end
+				Input.Changed:Connect(function()
+					if Input.UserInputState == Enum.UserInputState.End then
+						Dragging = false
+					end
+				end)
+			end
+		end)
+		AddConnection(DragPoint.InputChanged, function(Input)
+			if Input.UserInputType == Enum.UserInputType.MouseMovement then
+				DragInput = Input
+			end
+		end)
+		AddConnection(UserInputService.InputChanged, function(Input)
+			if Input == DragInput and Dragging then
+				local Delta = Input.Position - MousePos
+				--TweenService:Create(Main, TweenInfo.new(0.05, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)}):Play()
+				Main.Position  = UDim2.new(FramePos.X.Scale,FramePos.X.Offset + Delta.X, FramePos.Y.Scale, FramePos.Y.Offset + Delta.Y)
+			end
+		end)
+	end)
+end    
 
 local function Create(Name, Properties, Children)
 	local Object = Instance.new(Name)
@@ -603,7 +604,9 @@ function OrionLib:MakeWindow(WindowConfig)
 		Parent = Orion,
 		Position = UDim2.new(0.5, -307, 0.5, -172),
 		Size = UDim2.new(0, 615, 0, 344),
-		ClipsDescendants = true
+		ClipsDescendants = true,
+        Active = true,
+		Draggable = true
 	}), {
 		--SetProps(MakeElement("Image", "rbxassetid://3523728077"), {
 		--	AnchorPoint = Vector2.new(0.5, 0.5),
@@ -650,8 +653,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		MainWindow.Visible = false
 		UIHidden = true
 		OrionLib:MakeNotification({
-			Name = "界面已隐藏",
-			Content = "按下右 Shift 键重新打开界面",
+			Name = "界面关闭",
+			Content = "点击右Shift重新打开界面",
 			Time = 5
 		})
 		WindowConfig.CloseCallback()
@@ -1379,7 +1382,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					BackgroundTransparency = 1,
 					TextColor3 = Color3.fromRGB(255, 255, 255),
 					PlaceholderColor3 = Color3.fromRGB(210,210,210),
-					PlaceholderText = "Input",
+					PlaceholderText = "请输入",
 					Font = Enum.Font.GothamSemibold,
 					TextXAlignment = Enum.TextXAlignment.Center,
 					TextSize = 14,
