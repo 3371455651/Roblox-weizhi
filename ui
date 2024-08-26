@@ -102,7 +102,7 @@ local function MakeDraggable(DragPoint, Main)
         local Dragging = false
         local DragInput = nil
         local InitialMousePos = Vector2.new()
-        local InitialPosition = UDim2()
+        local InitialPosition = UDim2.new()
 
         AddConnection(DragPoint.InputBegan, function(Input)
             if Input.UserInputType == Enum.UserInputType.MouseButton1 then
@@ -126,7 +126,6 @@ local function MakeDraggable(DragPoint, Main)
         end)
     end)
 end
-
 local function Create(Name, Properties, Children)
 	local Object = Instance.new(Name)
 	for i, v in next, Properties or {} do
