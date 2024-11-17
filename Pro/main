@@ -1,0 +1,12 @@
+if placeId == 3623096087 then -- 力量传奇的ID
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "识别到当前为力量传奇", -- 必需
+        Text = "制作为你载入未知脚本Pro | 力量传奇", -- 必需
+    })
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/3371455651/Roblox-weizhi/refs/heads/main/Pro/3623096087"))()
+else
+    game:GetService("StarterGui"):SetCore("SendNotification",{
+        Title = "当前为: " .. game.Name, -- 必需
+        Text = "此作品暂不支持高级功能", -- 必需
+    })
+end
